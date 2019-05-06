@@ -1,0 +1,23 @@
+# Intelligent Agents
+
+## Environment types
+
+- Fully / Partially Observable
+- Single / Multi Agents
+- Deterministic / Stochastic
+- Static / Semi-static / Dynamic
+- Discrete / Continuous
+
+## Agent types
+
+Learning agents:
+- Simple reflex: based on current state only
+- Model-based reflex: handle partial observability by keeping track of world view
+- Goal-based
+- Utility-based
+
+4 conceptual components:
+- Learning element
+- Performance element
+- Critic
+- Problem generator
