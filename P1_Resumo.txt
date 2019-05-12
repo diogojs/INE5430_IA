@@ -39,3 +39,10 @@ Goal: 11
 BFS: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
 LDFS(L=3): 1, 2, 4, 8, 9, 5, 10, 11
 IDS: 1, 1, 2, 3, 1, 2, 4, 5, 3, 6, 7, 1, 2, 4, 8, 9, 5, 10, 11 (conferir)
+UCS
+
+INFORMED SEARCH
+
+Heuristic h(n)
+
+Greedy Search: search expands the node that appears to be closest to goal

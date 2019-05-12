@@ -1,15 +1,16 @@
-import Queue as Q
 import time
 import resource
 import sys
 import math
+
+from collections import deque
 
 
 class PuzzleState(object):
 
     """docstring for PuzzleState"""
 
-    def __init__(self, config, n, parent=None, action="Initial", cost=0):
+    def __init__(self, config: tuple, n, parent=None, action="Initial", cost=0):
         if n*n != len(config) or n < 2:
             raise Exception("the length of config is not correct!")
         self.n = n
@@ -21,7 +22,7 @@ class PuzzleState(object):
         self.children = []
         for i, item in enumerate(self.config):
             if item == 0:
-                self.blank_row = i / self.n
+                self.blank_row = i // self.n
                 self.blank_col = i % self.n
                 break
 
@@ -97,19 +98,44 @@ class PuzzleState(object):
 
 
 def writeOutput():
+    # path_to_goal: ['Up', 'Left', 'Left']
+    # cost_of_path: 3
+    # nodes_expanded: 10
+    # search_depth: 3
+    # max_search_depth: 4
+    # running_time: 0.00188088
+    # max_ram_usage: 0.07812500
     pass
-    # Student Code Goes here
 
 
 def bfs_search(initial_state):
     """BFS search"""
-    ### STUDENT CODE GOES HERE ###
-    pass
+    frontier = deque()
+    frontier.append(initial_state)
+    explored = set()
 
+    nodes_expanded = 0
+
+    while len(frontier) > 0:
+        state = frontier.popleft()
+        explored.add(state)
+
+        if test_goal(state):
+            return (state, nodes_expanded)
+
+        children = state.expand()
+        nodes_expanded += len(children)
+        loop_part(children, frontier, explored)
+    return (None, 0, 0)
+
+def loop_part(children, frontier, explored):
+    for neighbor in children:
+            if neighbor not in frontier and neighbor not in explored:
+                frontier.append(neighbor)
 
 def dfs_search(initial_state):
     """DFS search"""
-    ### STUDENT CODE GOES HERE ###
+    
     pass
 
 
@@ -131,10 +157,9 @@ def calculate_manhattan_dist(idx, value, n):
     pass
 
 
-def test_goal(puzzle_state):
+def test_goal(puzzle_state: PuzzleState):
     """test the state is the goal state or not"""
-    ### STUDENT CODE GOES HERE ###
-    pass
+    return (puzzle_state.config == (0,1,2,3,4,5,6,7,8))
 
 
 # Main Function that reads in Input and Runs corresponding Algorithm
@@ -147,7 +172,9 @@ def main():
     size = int(math.sqrt(len(begin_state)))
     hard_state = PuzzleState(begin_state, size)
     if sm == "bfs":
-        bfs_search(hard_state)
+        state, nodes_expanded = bfs_search(hard_state)
+        print(f'Nodes expanded: {nodes_expanded}')
+        print(f'Depth: {state.cost}')
     elif sm == "dfs":
         dfs_search(hard_state)
     elif sm == "ast":
