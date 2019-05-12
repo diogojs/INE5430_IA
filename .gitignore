@@ -123,4 +123,5 @@ dmypy.json
 .pyre/
 
 # Extra
-.vscode
+.vscode/
+WP1/.vscode

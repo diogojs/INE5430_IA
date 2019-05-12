@@ -7,11 +7,9 @@ import sys
 
 from miner.model.world import World
 from miner.agents.robot import Robot
+from miner.model.algorithms import Algorithm
 
 if __name__ == "__main__":
     # Inicializa os agentes
     world = World(3, ['0','0','0','1','1','0','0','*','0'])
-    robot = Robot(world, 'LDS')
-    robot.pos = (1, 0)
-    robot.show()
-    pass
+    robot = Robot(world, Algorithm.LDS)

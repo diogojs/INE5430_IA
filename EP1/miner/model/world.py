@@ -18,9 +18,9 @@ class World(object):
 
     def view(self, x, y):
         c = self.cell(x, y)
-        if c == '0':
+        if c == 0:
             return ' '
-        elif c == '1':
+        elif c == 1:
             return ':'
         else:
             return '*'
@@ -35,5 +35,5 @@ class World(object):
                     else:
                         line += '@ '
                 else:
-                    line += self.cell(x, y) + ' '
+                    line += str(self.cell(x, y)) + ' '
             print(line)
