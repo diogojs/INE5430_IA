@@ -1,4 +1,4 @@
-from enum import IntEnum
+from enum import IntEnum, Enum
 
 
 class Action(IntEnum):
@@ -12,3 +12,9 @@ class Action(IntEnum):
     UP = -1
     DOWN = 1
     GG = 42
+
+
+class Algorithm(Enum):
+    BFS = 'BFS'
+    LDS = 'LDS'
+    Astar = 'Astar'

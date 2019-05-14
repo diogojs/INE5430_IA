@@ -3,14 +3,14 @@ from miner.utils.enums import Action
 
 class Robot(object):
 
-    def __init__(self, world: World, algorithm='LDS', position=(0,0)):
-        if not (world and algorithm):
-            raise ValueError("Parameters must not be null.")
+    def __init__(self, world: World, position=(0,0)):
+        if not world:
+            raise ValueError("Parameter world must not be null.")
         self.pos = position
         self.battery = 0
         self.world = world
-        self.battery = int(world.size**1.5)
-        self.algorithm = algorithm
+        self.max_battery = int(world.size**1.5)
+        self.battery = self.max_battery
 
     def x(self):
         return self.pos[0]
@@ -22,16 +22,16 @@ class Robot(object):
         self.world.show(self.pos)
 
     def left(self):
-        return self.move(Action.LEFT, 0) is not None
+        return self.move(Action.LEFT, 0)
 
     def right(self):
-        return self.move(Action.RIGHT, 0) is not None
+        return self.move(Action.RIGHT, 0)
 
     def up(self):
-        return self.move(0, Action.UP) is not None
+        return self.move(0, Action.UP)
 
     def down(self):
-        return self.move(0, Action.DOWN) is not None
+        return self.move(0, Action.DOWN)
 
     def move(self, dx, dy):
         x = self.x()
@@ -49,10 +49,8 @@ class Robot(object):
             or self.world.cell(x, targety) == 1:
                 return None
 
-        # Atualiza a posição e gasta bateria
-        self.pos = (targetx, targety)
-        self.spend_battery()
-        return self.pos
+        # Retorna a nova posição
+        return (targetx, targety)
 
     def spend_battery(self, qt=1):
         self.battery -= qt

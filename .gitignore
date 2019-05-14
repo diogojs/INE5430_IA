@@ -125,3 +125,4 @@ dmypy.json
 # Extra
 .vscode/
 WP1/.vscode
+*.pdf
