@@ -12,7 +12,24 @@ from miner.agents.uninformed_agent import UninformedAgent
 
 if __name__ == "__main__":
     # Inicializa os agentes
-    world = load_world('/home/diogo/Documents/CCO/07sem/INE5430_IA/EP1/tests/example.map')
+    world = load_world(
+        '/home/diogo/Documents/CCO/2019-1/INE5430_IA/EP1/tests/example.map')
     robot = Robot(world)
-    agent = UninformedAgent(MineState(robot))
-    agent.search('LDS', agent.best_state)
+    agent = UninformedAgent('LDS')
+    print(f'Estado inicial:')
+    robot.show()
+    print(f'Bateria disponível: {robot.max_battery}')
+
+    print('\niniciando busca...\n')
+
+    solution, nodes, actions = agent.search(
+        MineState(robot), robot.max_battery)
+    if solution:
+        print(f'Resultado final:')
+        solution.robot.show()
+        print(f'Nós expandidos: {nodes}')
+        print(f'Ouro: {solution.gold}')
+        print(f'Bateria: {solution.robot.battery}')
+        print(f'{actions}')
+    else:
+        print('Nenhuma solução encontrada para esse experimento.')

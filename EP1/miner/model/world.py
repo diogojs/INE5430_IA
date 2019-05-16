@@ -64,3 +64,6 @@ class World(object):
                 else:
                     line += str(self.cell(x, y)) + ' '
             print(line)
+
+    def has_gold(self):
+        return '*' in self.matrix

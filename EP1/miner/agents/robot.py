@@ -1,9 +1,10 @@
 from miner.model.world import World
 from miner.utils.enums import Action
 
+
 class Robot(object):
 
-    def __init__(self, world: World, position=(0,0)):
+    def __init__(self, world: World, position=(0, 0)):
         if not world:
             raise ValueError("Parameter world must not be null.")
         self.pos = position
@@ -14,7 +15,7 @@ class Robot(object):
 
     def x(self):
         return self.pos[0]
-    
+
     def y(self):
         return self.pos[1]
 
@@ -40,14 +41,14 @@ class Robot(object):
         # Checa se está em uma borda ou de encontro a parede
         targetx = x + dx
         if targetx < 0 \
-            or targetx >= self.world.size \
-            or self.world.cell(targetx, y) == 1:
-                return None
+                or targetx >= self.world.size \
+                or self.world.cell(targetx, y) == 1:
+            return None
         targety = y + dy
         if targety < 0 \
-            or targety >= self.world.size \
-            or self.world.cell(x, targety) == 1:
-                return None
+                or targety >= self.world.size \
+                or self.world.cell(x, targety) == 1:
+            return None
 
         # Retorna a nova posição
         return (targetx, targety)
@@ -56,3 +57,7 @@ class Robot(object):
         self.battery -= qt
         if self.battery < 0:
             self.battery = 0
+
+    def buy_batteries(self, needed):
+        self.battery += gold * 5 * int(self.world.size**1.5)
+        self.max_battery = self.battery

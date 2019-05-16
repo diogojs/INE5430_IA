@@ -3,31 +3,57 @@ from enum import Enum, auto
 
 from miner.model.mine_state import MineState
 from miner.agents.robot import Robot
+from utils.actions import reverse_actions
 
 
 class UninformedAgent():
     algorithms = ['LDS', 'Astar']
 
-    def __init__(self, initial_state: MineState):
-        self.robot = initial_state.robot
-        self.world = initial_state.robot.world
-        self.final_battery = self.robot.battery
-        self.collected_gold = 0
-        self.actions = []
-        self.best_state: MineState = initial_state
-
-    def search(self, alg, initial_state: MineState):
+    def __init__(self, alg):
         if alg not in UninformedAgent.algorithms:
             raise ValueError(f'Algorithm {alg} not implemented')
-        nodes_expanded = 0
-        if alg == 'LDS':
-            # while self.final_battery > 0:
+        self.alg = alg
+        self.actions = []
+
+    def search(self, initial_state: MineState, limit=0):
+
+        self.nodes_expanded = 0
+        self.best_state = initial_state
+
+        if self.alg == 'LDS':
+            while self.best_state.robot.battery > 1:
                 # Verifica ida mais eficiente do robô
-                going_state, nodes_expanded = self.LDS(initial_state, self.test_going, 10)
-                # back_state = self.LDS(going_state, self.test_back, 10)
-                going_state.robot.show()
-                print(f'Expanded: {nodes_expanded}')
-                
+                initial_state = self.best_state
+                initial_state.zero()
+
+                go = self.LDS(
+                    initial_state, self.test_going, limit)
+                if go is None:
+                    break
+
+                print(f'\nWent:')
+                go.robot.show()
+                print(f'Ouro: {go.gold}')
+                print(f'Bateria: {go.robot.battery}')
+                print(f'{go.actions}')
+
+                self.best_state = go
+                self.actions += go.actions
+                self.actions += reverse_actions(go.actions)
+                self.best_state.robot.pos = (0, 0)
+                self.best_state.robot.battery = 2 * \
+                    self.best_state.robot.battery - self.best_state.robot.max_battery
+
+                print(f'\nBack:')
+                self.best_state.robot.show()
+                print(f'Bateria: {self.best_state.robot.battery}')
+                print(f'{self.actions}')
+
+                if self.best_state.world.has_gold():
+                    self.best_state.buy_batteries()
+                    print(f'Bought: {self.best_state.robot.battery}')
+
+            return (self.best_state, self.nodes_expanded, self.actions)
 
     def LDS(self, initial_state: MineState, test_function, limit=0) -> (MineState, int):
         """ Limited Depth Search """
@@ -37,34 +63,34 @@ class UninformedAgent():
             print(f'Setting depth limit to {self.limit}')
         else:
             self.limit = limit
-        
+
         frontier = deque()
         frontier.append(initial_state)
         explored = set()
-        nodes_expanded = 0
 
         while len(frontier) > 0:
             state: MineState = frontier.pop()
             explored.add(state)
-            if state.cost > limit:
-                continue
 
             if test_function(state):
-                self.best_state = state
+                state.get_gold()
+                return state
+
+            if state.cost >= limit:
+                continue
 
             children = state.expand()
-            nodes_expanded += len(children)
-            
+            self.nodes_expanded += len(children)
+
             for neighbor in children:
                 if (neighbor not in frontier) and (neighbor not in explored):
                     frontier.append(neighbor)
-        
-        return (self.best_state, nodes_expanded)
+
+        return None
 
     def test_going(self, state: MineState):
-        state.try_get_gold()
-        if state.gold >= self.best_state.gold:
-            return state.gold > self.best_state.gold or state.robot.battery > self.best_state.robot.battery
+        r = state.robot
+        return state.world.cell(r.x(), r.y()) == '*'
 
     def test_back(self, state: MineState):
-        pass
+        return state.robot.pos == (0, 0)
