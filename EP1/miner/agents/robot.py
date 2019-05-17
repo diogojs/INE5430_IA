@@ -58,6 +58,6 @@ class Robot(object):
         if self.battery < 0:
             self.battery = 0
 
-    def buy_batteries(self, needed):
-        self.battery += gold * 5 * int(self.world.size**1.5)
+    def buy_batteries(self, amount):
+        self.battery += amount
         self.max_battery = self.battery

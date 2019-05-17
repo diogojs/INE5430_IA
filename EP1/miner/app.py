@@ -11,19 +11,34 @@ from miner.agents.robot import Robot
 from miner.agents.uninformed_agent import UninformedAgent
 
 if __name__ == "__main__":
+    # Salva argumentos da linha de comando
+    if len(sys.argv) < 2:
+        print('Argumentos inválidos.')
+        print('Informe o algoritmo a ser utilizado, e o limite caso necessário.')
+        print('Exemplo de entrada: python app.py LDS 20')
+        exit()
+    algorithm = sys.argv[1].lower()
+
+    limit = 0
+    if len(sys.argv) > 2 and sys.argv[2].lower() != 'debug':
+        limit = int(sys.argv[2].lower())
+
+    debugging = False
+    if 'debug' in sys.argv:
+        debugging = True
+
     # Inicializa os agentes
     world = load_world(
         '/home/diogo/Documents/CCO/2019-1/INE5430_IA/EP1/tests/example.map')
     robot = Robot(world)
-    agent = UninformedAgent('LDS')
+    agent = UninformedAgent('LDS', debugging)
     print(f'Estado inicial:')
     robot.show()
     print(f'Bateria disponível: {robot.max_battery}')
-
-    print('\niniciando busca...\n')
+    print('\nIniciando busca...\n')
 
     solution, nodes, actions = agent.search(
-        MineState(robot), robot.max_battery)
+        MineState(robot), limit)
     if solution:
         print(f'Resultado final:')
         solution.robot.show()

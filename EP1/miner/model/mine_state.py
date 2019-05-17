@@ -21,7 +21,7 @@ class MineState():
     def expand(self):
         """ Expande o nó gerando os nós filhos """
         if self.robot.battery == 0:
-            return self.children
+            return []
 
         if len(self.children) == 0:
             ac = (len(self.actions) == 0)
@@ -107,14 +107,17 @@ class MineState():
         x = self.robot.x()
         y = self.robot.y()
         self.world.set_cell(x, y, 0)
+        self.actions.append('PO')
 
     def buy_batteries(self):
         max_need = self.world.size**2 * 2
         value = 5 * int(self.world.size**1.5)
 
-        if self.robot.battery < max_need:
-            self.robot.buy_batteries(self.gold)
-            self.gold = 0
+        needed = ceil((max_need - self.robot.battery) / value)
+
+        buy = min(needed, self.gold)
+        self.robot.buy_batteries(buy * value)
+        self.gold -= buy
 
     def zero(self):
         self.actions = []
