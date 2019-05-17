@@ -33,12 +33,14 @@ class World(object):
             raise Exception("The lenght of matrix is not correct!")
         self.size = size
         self.matrix = matrix
+        self.gold_positions: list = self.calc_gold_positions()
 
     def cell(self, x, y) -> int:
         return self.matrix[y*self.size + x]
 
     def set_cell(self, x, y, value):
         self.matrix[y*self.size + x] = value
+        self.gold_positions = self.calc_gold_positions()
 
     def get(self, index) -> (int, int):
         return (index % self.size, index // self.size)
@@ -67,3 +69,6 @@ class World(object):
 
     def has_gold(self):
         return '*' in self.matrix
+
+    def calc_gold_positions(self):
+        return [(i % self.size, i // self.size) for i, c in enumerate(self.matrix) if c == '*']

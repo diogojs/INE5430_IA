@@ -14,7 +14,7 @@ class MineState():
         self.world = robot.world
         self.cost = cost
         self.gold = gold
-        self.parent = parent
+        self.parent: MineState = parent
         self.children = []
         self.actions = []
 
@@ -52,6 +52,7 @@ class MineState():
             child_state = MineState(child_robot, self, self.cost+1, self.gold)
             child_state.actions = list(self.actions)
             child_state.actions.append('C')
+            child_state.try_get_gold()
             return child_state
         else:
             return None
@@ -65,6 +66,7 @@ class MineState():
             child_state = MineState(child_robot, self, self.cost+1, self.gold)
             child_state.actions = list(self.actions)
             child_state.actions.append('B')
+            child_state.try_get_gold()
             return child_state
         else:
             return None
@@ -78,6 +80,7 @@ class MineState():
             child_state = MineState(child_robot, self, self.cost+1, self.gold)
             child_state.actions = list(self.actions)
             child_state.actions.append('E')
+            child_state.try_get_gold()
             return child_state
         else:
             return None
@@ -91,6 +94,7 @@ class MineState():
             child_state = MineState(child_robot, self, self.cost+1, self.gold)
             child_state.actions = list(self.actions)
             child_state.actions.append('D')
+            child_state.try_get_gold()
             return child_state
         else:
             return None
@@ -99,14 +103,11 @@ class MineState():
         x = self.robot.x()
         y = self.robot.y()
         if self.world.cell(x, y) == '*':
-            self.world.set_cell(x, y, 0)
-            self.gold += 1
+            self.get_gold(x, y)
 
-    def get_gold(self):
-        self.gold += 1
-        x = self.robot.x()
-        y = self.robot.y()
+    def get_gold(self, x, y):
         self.world.set_cell(x, y, 0)
+        self.gold += 1
         self.actions.append('PO')
 
     def buy_batteries(self):
@@ -124,3 +125,15 @@ class MineState():
         self.children = []
         self.parent = None
         self.cost = 0
+
+    def __lt__(self, other):
+        return (self.cost + self.h()) < (other.cost + other.h())
+
+    def h(self):
+        _h = 0
+        pos = self.robot.pos
+        for gold in self.world.gold_positions:
+            x = abs(pos[0] - gold[0])
+            y = abs(pos[1] - gold[1])
+            _h += x + y
+        return _h

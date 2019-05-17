@@ -89,7 +89,7 @@ class UninformedAgent():
             if self.test_goal_lds(state):
                 return state
 
-            if state.cost >= limit or state.robot.battery <= 0:
+            if state.cost >= self.limit or state.robot.battery <= 0:
                 continue
 
             children = state.expand()
@@ -102,11 +102,8 @@ class UninformedAgent():
         return None
 
     def test_goal_lds(self, state: MineState):
-        r = state.robot
-        if state.world.cell(r.x(), r.y()) == '*':
-            state.get_gold()
-            return True
-        return False
+        if state.parent is not None:
+            return state.gold > state.parent.gold
 
     def run_BFS(self, initial_state: MineState, limit=0):
         self.best_state = self.BFS(initial_state, limit)
@@ -146,7 +143,4 @@ class UninformedAgent():
         return None
 
     def test_goal_BFS(self, state: MineState):
-        r = state.robot
-        if state.world.cell(r.x(), r.y()) == '*':
-            state.get_gold()
         return state.robot.pos == (0, 0) and not state.world.has_gold()
