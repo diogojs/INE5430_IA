@@ -9,7 +9,7 @@ from miner.utils.debug import log
 
 
 class UninformedAgent():
-    algorithms = ['LDS', 'Astar']
+    algorithms = ['lds', 'bfs']
 
     def __init__(self, alg, debugging=False):
         if alg not in UninformedAgent.algorithms:
@@ -23,8 +23,10 @@ class UninformedAgent():
         self.nodes_expanded = 0
         self.best_state = initial_state
 
-        if self.alg == 'LDS':
+        if self.alg == 'lds':
             return self.run_LDS(initial_state, limit)
+        elif self.alg == 'bfs':
+            return self.run_BFS(initial_state, limit)
 
     def run_LDS(self, initial_state: MineState, limit=0):
         while self.best_state.robot.battery > 1:
@@ -33,7 +35,7 @@ class UninformedAgent():
             initial_state.zero()
 
             go = self.LDS(
-                initial_state, self.test_going, limit)
+                initial_state, limit)
             if go is None:
                 break
             if (go.robot.max_battery - go.robot.battery > go.robot.battery):
@@ -67,12 +69,12 @@ class UninformedAgent():
 
         return (self.best_state, self.nodes_expanded, self.actions)
 
-    def LDS(self, initial_state: MineState, test_function, limit=0) -> (MineState, int):
+    def LDS(self, initial_state: MineState, limit=0) -> (MineState, int):
         """ Limited Depth Search """
 
         if limit == 0:
             self.limit = initial_state.robot.battery // 2
-            log(self.debugging, f'Setting depth limit to {self.limit}')
+            print(f'Setting depth limit to {self.limit}')
         else:
             self.limit = limit
 
@@ -84,8 +86,7 @@ class UninformedAgent():
             state: MineState = frontier.pop()
             explored.add(state)
 
-            if test_function(state):
-                state.get_gold()
+            if self.test_goal_lds(state):
                 return state
 
             if state.cost >= limit or state.robot.battery <= 0:
@@ -100,6 +101,52 @@ class UninformedAgent():
 
         return None
 
-    def test_going(self, state: MineState):
+    def test_goal_lds(self, state: MineState):
         r = state.robot
-        return state.world.cell(r.x(), r.y()) == '*'
+        if state.world.cell(r.x(), r.y()) == '*':
+            state.get_gold()
+            return True
+        return False
+
+    def run_BFS(self, initial_state: MineState, limit=0):
+        self.best_state = self.BFS(initial_state, limit)
+        self.actions = self.best_state.actions
+        return (self.best_state, self.nodes_expanded, self.actions)
+
+    def BFS(self, initial_state: MineState, limit=0):
+        """ Breath First Search """
+
+        if limit == 0:
+            self.limit = initial_state.robot.battery
+            print(f'Setting depth limit to {self.limit}')
+        else:
+            self.limit = limit
+
+        frontier = deque()
+        frontier.append(initial_state)
+        explored = set()
+
+        while len(frontier) > 0:
+            state: MineState = frontier.popleft()
+            explored.add(state)
+
+            if self.test_goal_BFS(state):
+                return state
+
+            if state.cost >= limit or state.robot.battery <= 0:
+                continue
+
+            children = state.expand()
+            self.nodes_expanded += len(children)
+
+            for neighbor in children:
+                if (neighbor not in frontier) and (neighbor not in explored):
+                    frontier.append(neighbor)
+
+        return None
+
+    def test_goal_BFS(self, state: MineState):
+        r = state.robot
+        if state.world.cell(r.x(), r.y()) == '*':
+            state.get_gold()
+        return state.robot.pos == (0, 0) and not state.world.has_gold()

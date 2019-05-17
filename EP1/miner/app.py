@@ -29,9 +29,9 @@ if __name__ == "__main__":
 
     # Inicializa os agentes
     world = load_world(
-        '/home/diogo/Documents/CCO/2019-1/INE5430_IA/EP1/tests/example.map')
+        '/home/diogo/Documents/CCO/2019-1/INE5430_IA/EP1/tests/full.map')
     robot = Robot(world)
-    agent = UninformedAgent('LDS', debugging)
+    agent = UninformedAgent(algorithm, debugging)
     print(f'Estado inicial:')
     robot.show()
     print(f'Bateria disponível: {robot.max_battery}')
