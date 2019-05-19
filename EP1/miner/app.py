@@ -24,7 +24,6 @@ if __name__ == "__main__":
         exit()
     mapa = sys.argv[1]
     algorithm = sys.argv[2].lower()
-    print(os.getcwd())
 
     if (algorithm == 'lds' or algorithm == 'bfs') and len(sys.argv) < 4:
         print('Informe o limite do algoritmo a ser utilizado.')
@@ -56,17 +55,17 @@ if __name__ == "__main__":
     print(f'Estado inicial:')
     robot.show()
     print(f'Bateria disponível: {robot.max_battery}')
-    print('\nIniciando busca...\n')
+    print(f'\nIniciando busca com {algorithm.upper()}...\n')
 
     solution, state = agent.search(
         MineState(robot), limit)
+    print(f'Resultado final:')
+    print(f'Nós expandidos: {solution.nodes_expanded}')
     if state:
-        print(f'Resultado final:')
         state.robot.show()
-        print(f'Nós expandidos: {solution.nodes_expanded}')
-        print(f'Bateria Restante: {state.robot.battery}')
-        print(f'Ouro Restante: {state.gold}')
+        print(f'Saldo Bateria: {state.robot.battery}')
+        print(f'Saldo Ouro: {state.gold}')
         print(f'Ouro Total Coletado: {solution.collected_gold}')
-        print(f'{solution.actions}')
+        print(f'{solution.actions}\n')
     else:
-        print('Nenhuma solução encontrada para esse experimento.')
+        print('Nenhuma solução encontrada para esse experimento.\n')
