@@ -72,3 +72,6 @@ class World(object):
 
     def calc_gold_positions(self):
         return [(i % self.size, i // self.size) for i, c in enumerate(self.matrix) if c == '*']
+    
+    def num_gold(self):
+        return len(self.gold_positions)

@@ -1,4 +1,4 @@
-from miner.model.world import load_world
+from miner.model.world import load_world, World
 from miner.model.mine_state import MineState
 from miner.agents.robot import Robot
 from miner.agents.informed_agent import InformedAgent
@@ -16,19 +16,47 @@ def test_AStar_find(mapa='tests/mini.map'):
     robot.show()
     print(f'Bateria: {robot.max_battery}\n')
 
-    solution, nodes, actions = agent.search(MineState(robot))
-    if solution:
+    solution, state = agent.search(
+        MineState(robot))
+    if state:
         print(f'Resultado final:')
-        solution.robot.show()
-        print(f'Bateria: {solution.robot.battery}')
-        print(f'Nós expandidos: {nodes}')
-        print(f'Ouro: {solution.gold}')
-        print(f'{actions}\n')
+        state.robot.show()
+        print(f'Nós expandidos: {solution.nodes_expanded}')
+        print(f'Bateria Restante: {state.robot.battery}')
+        print(f'Ouro Restante: {state.gold}')
+        print(f'Ouro Total Coletado: {solution.collected_gold}')
+        print(f'{solution.actions}')
     else:
         print('Nenhuma solução encontrada para esse experimento.')
 
-    return solution
+    return state
 
+def test_improvedAStar(mapa='tests/mini.map'):
+    algorithm = 'improvedastar'
+
+    # Inicializa os agentes
+    world = load_world(mapa)
+    robot = Robot(world)
+    agent = InformedAgent(algorithm)
+
+    print(f'Estado inicial:')
+    robot.show()
+    print(f'Bateria: {robot.max_battery}\n')
+
+    solution, state = agent.search(
+        MineState(robot))
+    if state:
+        print(f'Resultado final:')
+        state.robot.show()
+        print(f'Nós expandidos: {solution.nodes_expanded}')
+        print(f'Bateria Restante: {state.robot.battery}')
+        print(f'Ouro Restante: {state.gold}')
+        print(f'Ouro Total Coletado: {solution.collected_gold}')
+        print(f'{solution.actions}')
+    else:
+        print('Nenhuma solução encontrada para esse experimento.')
+
+    return state
 
 if __name__ == '__main__':
     mapa = "tests/mini.map"
@@ -43,5 +71,10 @@ if __name__ == '__main__':
 
     mapa = "tests/example.map"
     found = test_AStar_find(mapa)
+    assert (not found), "Não encontrou todos os ouros"
+    print('Teste 3: OK\n')
+
+    mapa = "tests/example.map"
+    found = test_improvedAStar(mapa)
     assert (not found.world.has_gold()), "Não encontrou todos os ouros"
-    print('Teste 2: OK\n')
+    print('Teste 4: OK\n')

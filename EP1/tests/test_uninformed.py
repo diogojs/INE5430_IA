@@ -12,9 +12,9 @@ def test_LDS_find(mapa='tests/mini.map', limit=0):
     robot = Robot(world)
     agent = UninformedAgent(algorithm)
 
-    solution, nodes, actions = agent.search(
+    _, state = agent.search(
         MineState(robot), limit)
-    return solution
+    return state
 
 
 if __name__ == '__main__':

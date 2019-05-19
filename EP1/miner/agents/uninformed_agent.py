@@ -19,8 +19,9 @@ class UninformedAgent():
         self.debugging = debugging
 
     def search(self, initial_state: MineState, limit=0):
-
         self.nodes_expanded = 0
+        self.collected_gold = 0
+        self.initial_gold = len(initial_state.world.calc_gold_positions())
         self.best_state = initial_state
 
         if self.alg == 'lds':
@@ -30,14 +31,15 @@ class UninformedAgent():
 
     def run_LDS(self, initial_state: MineState, limit=0):
         while self.best_state.robot.battery > 1:
-            # Verifica ida mais eficiente do robô
             initial_state = self.best_state
             initial_state.zero()
 
+            # Calcula ida até o primeiro ouro
             go = self.LDS(
                 initial_state, limit)
             if go is None:
                 break
+            # Verifica se é possível voltar até a entrada com a bateria restante
             if (go.robot.max_battery - go.robot.battery > go.robot.battery):
                 break
 
@@ -49,6 +51,7 @@ class UninformedAgent():
             log(self.debugging, f'Bateria: {go.robot.battery}')
             log(self.debugging, f'{go.actions}')
 
+            # Calcula volta até a entrada
             self.best_state = go
             self.actions += go.actions
             self.actions += reverse_actions(go.actions)
@@ -63,11 +66,18 @@ class UninformedAgent():
             log(self.debugging, f'Bateria: {self.best_state.robot.battery}')
             log(self.debugging, f'{self.actions}')
 
+            # Se ainda houver ouro no mapa compra bateria para a próxima busca
             if self.best_state.world.has_gold():
                 self.best_state.buy_batteries()
                 log(self.debugging, f'Bought: {self.best_state.robot.battery}')
 
-        return (self.best_state, self.nodes_expanded, self.actions)
+        w = self.best_state.world
+        if w.has_gold():
+            self.collected_gold = self.initial_gold - len(w.gold_positions)
+        else:
+            self.collected_gold = self.initial_gold
+
+        return (self, self.best_state)
 
     def LDS(self, initial_state: MineState, limit=0) -> (MineState, int):
         """ Limited Depth Search """
@@ -104,11 +114,14 @@ class UninformedAgent():
     def test_goal_lds(self, state: MineState):
         if state.parent is not None:
             return state.gold > state.parent.gold
+        return False
 
     def run_BFS(self, initial_state: MineState, limit=0):
         self.best_state = self.BFS(initial_state, limit)
-        self.actions = self.best_state.actions
-        return (self.best_state, self.nodes_expanded, self.actions)
+        if self.best_state is not None:
+            self.actions = self.best_state.actions
+            self.collected_gold = self.best_state.gold
+        return (self, self.best_state)
 
     def BFS(self, initial_state: MineState, limit=0):
         """ Breath First Search """
