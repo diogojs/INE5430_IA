@@ -3,9 +3,7 @@
 APP_PATH=./miner/app.py
 TEST_PATH=./tests/
 
-VENV_NAME?=venv
-VENV_ACTIVATE=. $(VENV_NAME)/bin/activate
-PYTHON=${VENV_NAME}/bin/python3
+PYTHON=poetry run python
 
 
 .DEFAULT: help
@@ -48,17 +46,18 @@ runall:
 	@echo "Projeto desenvolvido para a disciplina INE5430"
 	@echo "Aluno: Diogo Junior de Souza"
 	@echo "Matricula: 16100721"
+	@echo " "
 	@echo "Running all agents in mini example map"
-	python $(APP_PATH) $(TEST_PATH)mini.map LDS 20
-	python $(APP_PATH) $(TEST_PATH)mini.map BFS 20
-	python $(APP_PATH) $(TEST_PATH)mini.map Astar
-	python $(APP_PATH) $(TEST_PATH)mini.map ImprovedAstar
+	$(PYTHON) $(APP_PATH) $(TEST_PATH)mini.map LDS 20
+	$(PYTHON) $(APP_PATH) $(TEST_PATH)mini.map BFS 20
+	$(PYTHON) $(APP_PATH) $(TEST_PATH)mini.map Astar
+	$(PYTHON) $(APP_PATH) $(TEST_PATH)mini.map ImprovedAstar
 	@echo " "
 	@echo "Running all agents in required example map"
-	python $(APP_PATH) $(TEST_PATH)example.map LDS 100
-	python $(APP_PATH) $(TEST_PATH)example.map BFS 100
-	python $(APP_PATH) $(TEST_PATH)example.map Astar
-	python $(APP_PATH) $(TEST_PATH)example.map ImprovedAstar
+	$(PYTHON) $(APP_PATH) $(TEST_PATH)example.map LDS 100
+	$(PYTHON) $(APP_PATH) $(TEST_PATH)example.map BFS 100
+	$(PYTHON) $(APP_PATH) $(TEST_PATH)example.map Astar
+	$(PYTHON) $(APP_PATH) $(TEST_PATH)example.map ImprovedAstar
 
 run:
-	python $(APP_PATH) $(MAP) $(ALG) $(LIMIT)
+	${PYTHON} $(APP_PATH) $(MAP) $(ALG) $(LIMIT)
