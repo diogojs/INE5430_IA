@@ -15,7 +15,7 @@ Primeiramente acesse o ambiente de desenvolvimento:
 `poetry shell`
 
 Para rodar o programa com um agente específico, em um dado mapa, execute:
-`python3 miner/app.py ./tests/example.map LDS 10`
+```python3 miner/app.py ./tests/example.map LDS 10```
 Onde example.map é o arquivo contendo a configuração do mapa, LDS é o algoritmo utilizado pelo agente, e 10 é o limite do algoritmo (quando necessário).
 
 Algoritmos implementados:
