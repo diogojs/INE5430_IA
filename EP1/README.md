@@ -20,9 +20,15 @@ Para rodar o programa com um agente específico, em um dado mapa, execute:
 
 Onde example.map é o arquivo contendo a configuração do mapa, LDS é o algoritmo utilizado pelo agente, e 10 é o limite do algoritmo (quando necessário).
 
+Também é possível testar todos os agentes em dois mapas de exemplo, para comparativo entre os algoritmos, com o comando:
+
+```make runall```
+
 Algoritmos implementados:
 - LDS: Limited Depth Search
 - BFS: Breath First Search
 - Astar: A* com heurística Distância de Manhattan
 - ImprovedAstar: A* com heurística e estratégia melhorada
 
+### Testes
+Testar os principais módulos/classes com `pytest`
