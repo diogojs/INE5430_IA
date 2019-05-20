@@ -1,0 +1,41 @@
+# Intelligent Agents
+
+## Environment types
+
+- Fully / Partially Observable
+- Single / Multi Agents
+- Deterministic / Stochastic
+- Static / Semi-static / Dynamic
+- Discrete / Continuous
+
+## Agent types
+
+Learning agents:
+- Simple reflex: based on current state only
+- Model-based reflex: handle partial observability by keeping track of world view
+- Goal-based
+- Utility-based
+
+4 conceptual components:
+- Learning element
+- Performance element
+- Critic
+- Problem generator
+
+Uninformed Search:
+Lista de exercícios 1
+
+10.
+	    8
+        4   9
+    2      10
+        5  11
+1          12
+        6  13
+    3
+	7  14
+	   15
+Goal: 11
+BFS: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+LDFS(L=3): 1, 2, 4, 8, 9, 5, 10, 11
+IDS: 1, 1, 2, 3, 1, 2, 4, 5, 3, 6, 7, 1, 2, 4, 8, 9, 5, 10, 11 (conferir)
