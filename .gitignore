@@ -126,3 +126,5 @@ dmypy.json
 .vscode/
 WP1/.vscode
 *.pdf
+*.csv
+neural/.vscode
