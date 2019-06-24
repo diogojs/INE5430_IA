@@ -1,13 +1,15 @@
+from sys import argv
 import timeit
 import itertools
 import enum
-
+import csv
 import numpy as np
 import pandas as pd
-import csv
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+import joblib
+
 
 class FashionType(enum.Enum):
     TshirtTop = 0
@@ -22,73 +24,129 @@ class FashionType(enum.Enum):
     AnkleBoot = 9
 
 
-data_path = 'data/'
-print('Reading train file...')
-train_df = pd.read_csv(data_path + 'fashion-mnist_train.csv',
-            header=0)
-train_data = train_df.values
+DEBUG = True
 
-print('Splitting train and test data...')
-X_train, X_test, y_train, y_test = train_test_split(
-    train_data[0::,1::],
-    train_data[0::,0],
-    test_size=0.2,
-    random_state=0)
-print(f'Training size: {len(X_train)}')
-print(f'Test size: {len(X_test)}')
 
-methods = ['adam', 'lbfgs', 'sgd']
-activations = ['logistic', 'tanh', 'relu']
-sizes = [(10,), (50,), (100,), (10, 10)]
+def log(txt):
+    if DEBUG:
+        print(txt)
 
-for met, act, s in itertools.product(methods, activations, sizes):
-    print(f'Solver: {met}')
-    print(f'Function: {act}')
-    print(f'Hidden Layers: {s}')
 
-    nn = MLPClassifier(
+def usage(err=0):
+    print('Usage:')
+    print(f'{argv[0]} <command> [--help]')
+    print('Commands:')
+    print('train <training_file> <output_file> <epochs> <layer-sizes>')
+    print('test <network_file> <test_file>')
+    exit(err)
+
+
+def read_csv(filepath: str):
+    with open(filepath) as fp:
+        reader = csv.reader(fp)
+        next(reader)  # ignore header
+
+        # normalize
+        for label, *pxs in reader:
+            pxs = np.array(pxs).astype(np.float) / 255
+
+            yield label, pxs
+
+
+def train(train_filepath: str, output_filepath: str, epochs: int, layer_sizes: tuple):
+    log('Reading train file...')
+    Y_data, X_data = zip(*read_csv(train_filepath))
+
+    log('Splitting training and validation data...')
+    X_train, X_validation, y_train, y_validation = train_test_split(
+        X_data,
+        Y_data,
+        test_size=0.2,
+        random_state=0)
+    log(f'Training size: {len(X_train)}')
+    log(f'Test size: {len(X_validation)}')
+
+    methods = ['adam', 'lbfgs', 'sgd']
+    activations = ['logistic', 'tanh', 'relu']
+    for met, act in itertools.product(methods, activations):
+        log(f'Solver: {met}')
+        log(f'Function: {act}')
+        log(f'Hidden Layers: {layer_sizes}')
+
+        nn = MLPClassifier(
             activation=act,
             solver=met,
-            hidden_layer_sizes=s,
-            max_iter=100,
+            hidden_layer_sizes=layer_sizes,
+            max_iter=epochs,
             epsilon=1e-6)
-    start_time = timeit.default_timer()
-    print('Training Neural Network...')
-    nn.fit(X_train, y_train)
-    tscore = nn.score(X_train, y_train)
-    print("Training set score: %f" % tscore)
-    end_time = timeit.default_timer() - start_time
-    print(f'Time: {end_time}')
+        start_time = timeit.default_timer()
+        log('Training Neural Network...')
+        nn.fit(X_train, y_train)
+        tscore = nn.score(X_train, y_train)
+        log("Training set score: %f" % tscore)
+        end_time = timeit.default_timer() - start_time
+        log(f'Time: {end_time}')
 
-    layers = str(s).replace(',', '').replace('(', '').replace(')', '').replace(' ', '')
-    filename = 'coefs_' + met + act + layers + '.csv'
-    with open(filename, 'w') as coeffile:
-        for item in nn.coefs_:
-            if type(item) == float:
-                coeffile.write(str(item))
-            else:
-                for bitem in item:
-                    coeffile.write(str(bitem))
+        log('Saving trained neural network...')
+        layers = str(layer_sizes).replace(',', '').replace(
+            '(', '').replace(')', '').replace(' ', '')
+        out_filename = output_filepath + met + act + layers
+        joblib.dump(nn, out_filename)
 
-    print('Testing Neural Network...')
-    predict_output = nn.predict(X_test)
-    tscore2 = nn.score(X_test, y_test)
-    print("Test set score: %f" % tscore2)
+        log('Validating Neural Network...')
+        nn.predict(X_validation)
+        tscore2 = nn.score(X_validation, y_validation)
+        log("Validation set score: %f" % tscore2)
 
-    filename = 'output_' + met + act + layers + '.csv'
-    pf = open(filename, 'w')
-    csvobj = csv.writer(pf)
-    ids = list(range(len(predict_output)))
-    
-    translated_labels = [FashionType(x).name for x in predict_output]
-    csvobj.writerow([f'Solver: {met}'])
-    csvobj.writerow([f'Function: {act}'])
-    csvobj.writerow([f'Hidden Layers: {s}'])
-    csvobj.writerow([f'Time: {end_time}'])
-    csvobj.writerow([f'Train Score: {tscore}'])
-    csvobj.writerow([f'Test Score: {tscore2}'])
-    csvobj.writerow(['ImageId', 'Label', 'RealLabel'])
-    csvobj.writerows(zip(ids, predict_output, translated_labels))
-    pf.close()
+        filename = 'output_' + met + act + layers + '.csv'
+        with open(filename, 'w') as fp:
+            fp.writelines(f'Solver: {met}')
+            fp.writelines(f'Function: {act}')
+            fp.writelines(f'Hidden Layers: {layer_sizes}')
+            fp.writelines(f'Time: {end_time}')
+            fp.writelines(f'Train Score: {tscore}')
+            fp.writelines(f'Validation Score: {tscore2}')
 
-print('Finished')
+        log('Finish training')
+
+
+def test(network_file: str, test_file: str):
+    log('Loading saved network...')
+    nn = joblib.load(network_file)
+
+    log('Reading dataset file...')
+    test_df = pd.read_csv(test_file, header=0)
+    test_data = [a[0:1] + [x/255 for x in a[1:]] for a in test_df.values]
+
+    log('Testing dataset...')
+    output = nn.predict(test_data[0::, 1::])
+    final_score = accuracy_score(test_data[0::, 0], output)
+    log("Testing set score: %f" % final_score)
+
+
+if __name__ == '__main__':
+    try:
+        command = argv[1]
+    except IndexError:
+        usage(1)
+
+    if '--help' in argv:
+        usage()
+
+    if command == 'train':
+        try:
+            _, _, train_filepath, output_filepath, epochs, *ls = argv
+            layer_sizes = tuple([int(l) for l in ls])
+        except (ValueError, TypeError):
+            usage(1)
+        else:
+            train(train_filepath, output_filepath, int(epochs), layer_sizes)
+    elif command == 'test':
+        try:
+            _, _, network_file, test_file = argv
+        except (ValueError, TypeError):
+            usage(1)
+        else:
+            test(network_file, test_file)
+
+    log('Finished')
