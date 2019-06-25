@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix
 import joblib
 
 
@@ -66,8 +66,8 @@ def train(train_filepath: str, output_filepath: str, epochs: int, layer_sizes: t
     log(f'Training size: {len(X_train)}')
     log(f'Test size: {len(X_validation)}')
 
-    methods = ['adam', 'lbfgs', 'sgd']
-    activations = ['logistic', 'tanh', 'relu']
+    methods = ['adam']  # , 'lbfgs', 'sgd']
+    activations = ['logistic']  # , 'tanh', 'relu']
     for met, act in itertools.product(methods, activations):
         log(f'Solver: {met}')
         log(f'Function: {act}')
@@ -107,7 +107,7 @@ def train(train_filepath: str, output_filepath: str, epochs: int, layer_sizes: t
             fp.writelines(f'Train Score: {tscore}')
             fp.writelines(f'Validation Score: {tscore2}')
 
-        log('Finish training')
+        log('Finish training\n\n')
 
 
 def test(network_file: str, test_file: str):
@@ -115,13 +115,18 @@ def test(network_file: str, test_file: str):
     nn = joblib.load(network_file)
 
     log('Reading dataset file...')
-    test_df = pd.read_csv(test_file, header=0)
-    test_data = [a[0:1] + [x/255 for x in a[1:]] for a in test_df.values]
+    # test_df = pd.read_csv(test_file, header=0)
+    # test_data = [[x/255 for x in a[1:]] for a in test_df.values]
+    # test_y = [a[0] for a in test_df.values]
+
+    Y_data, X_data = zip(*read_csv(test_file))
 
     log('Testing dataset...')
-    output = nn.predict(test_data[0::, 1::])
-    final_score = accuracy_score(test_data[0::, 0], output)
+    output = nn.predict(X_data)
+    final_score = accuracy_score(Y_data, output)
     log("Testing set score: %f" % final_score)
+    conf_matrix = confusion_matrix(Y_data, output)
+    print(conf_matrix)
 
 
 if __name__ == '__main__':
