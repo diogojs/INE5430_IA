@@ -16,7 +16,7 @@ Install:
 ## Running Application
 
 You can run using poetry:
-```poetry run python fashion.py [--verbose]```
+```poetry run python fashion.py```
 
 The option `--verbose` activates logging, printing the process in terminal,
 without this option only the final output is saved in csv files.

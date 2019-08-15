@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "rxnn"
+version = "0.1.0"
+description = ""
+authors = ["Diogo Junior <diogo.junior@grad.ufsc.br>"]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+numpy = "^1.16"
+pandas-ml = "^0.6.1"
+matplotlib = "^3.1"
+seaborn = "^0.9.0"
+preprocessing = "^0.1.13"
+
+[tool.poetry.dev-dependencies]
+pylint = "^2.3"
+pycairo = "^1.18"
+pyqt5 = "^5.12"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
