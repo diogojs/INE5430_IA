@@ -100,12 +100,12 @@ def train(train_filepath: str, output_filepath: str, epochs: int, layer_sizes: t
 
         filename = 'output_' + met + act + layers + '.csv'
         with open(filename, 'w') as fp:
-            fp.writelines(f'Solver: {met}')
-            fp.writelines(f'Function: {act}')
-            fp.writelines(f'Hidden Layers: {layer_sizes}')
-            fp.writelines(f'Time: {end_time}')
-            fp.writelines(f'Train Score: {tscore}')
-            fp.writelines(f'Validation Score: {tscore2}')
+            fp.write(f'Solver: {met}\n')
+            fp.write(f'Function: {act}\n')
+            fp.write(f'Hidden Layers: {layer_sizes}\n')
+            fp.write(f'Time: {end_time}\n')
+            fp.write(f'Train Score: {tscore}\n')
+            fp.write(f'Validation Score: {tscore2}\n')
 
         log('Finish training\n\n')
 
